@@ -90,20 +90,6 @@ Windows 可用：
 
 - 运行目录下会使用 `uploads/` 作为上传根目录，并以 `/uploads/**` 对外提供静态访问。
 
-## 6. 启动前端（管理台）
-
-前端位于 `wms-ui/`，Vite 默认端口通常为 `5173`。已配置代理：`/api -> http://localhost:8080`。
-
-```bash
-cd wms-ui
-npm install
-npm run dev
-```
-
-启动后访问（以终端输出为准）：
-
-- `http://localhost:5173/`
-
 ## 7. 常用构建命令
 
 ### 7.1 后端打包
@@ -120,17 +106,13 @@ java -jar target/WMS-0.0.1-SNAPSHOT.jar
 
 ### 7.2 前端构建与预览
 
-```bash
-cd wms-ui
-npm run build
-```
-
 构建产物在 `wms-ui/dist/` 目录。
 
 预览打包后的前端（自动代理 API 到后端）：
 
 ```bash
 cd wms-ui
+npm i
 npm run preview
 ```
 
