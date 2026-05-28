@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.ProdCategoryMapper">
+
+    <resultMap id="ProdCategoryResult" type="com.d0dd.wms.entity.ProdCategory">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectProdCategoryVo">
+        select id, parent_id, category_name, order_num, status, create_by, create_time, update_by, update_time
+        from prod_category
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.ProdCategory" resultMap="ProdCategoryResult">
+        <include refid="selectProdCategoryVo"/>
+        <where>
+            <if test="parentId != null">
+                AND parent_id = #{parentId}
+            </if>
+            <if test="categoryName != null and categoryName != ''">
+                AND category_name like concat('%', #{categoryName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="ProdCategoryResult">
+        <include refid="selectProdCategoryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="String" resultMap="ProdCategoryResult">
+        <include refid="selectProdCategoryVo"/>
+        where category_name = #{categoryName}
+    </select>
+    
+    <select id="selectCountByParentId" parameterType="Long" resultType="Integer">
+        select count(1) from prod_category where parent_id = #{parentId}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.ProdCategory" useGeneratedKeys="true" keyProperty="id">
+        insert into prod_category(
+            <if test="parentId != null">parent_id,</if>
+            <if test="categoryName != null">category_name,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time
+        )values(
+            <if test="parentId != null">#{parentId},</if>
+            <if test="categoryName != null">#{categoryName},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.ProdCategory">
+        update prod_category
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="categoryName != null">category_name = #{categoryName},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from prod_category where id = #{id}
+    </delete>
+</mapper>

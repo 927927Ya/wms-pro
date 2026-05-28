@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.ProdSkuMapper">
+
+    <resultMap id="ProdSkuResult" type="com.d0dd.wms.entity.ProdSku">
+        <id property="id" column="id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="prodNameEng" column="prod_name_eng"/>
+        <result property="prodNameChn" column="prod_name_chn"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="secondCategoryId" column="second_category_id"/>
+        <result property="firstCategoryId" column="first_category_id"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="outerImageUrl" column="outer_image_url"/>
+        <result property="innerImageUrl" column="inner_image_url"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="saleStorageUnit" column="sale_storage_unit"/>
+        <result property="storageUnit" column="storage_unit"/>
+        <result property="conversionStorageToSaleUnit" column="conversion_storage_to_sale_unit"/>
+        <result property="palletStorageCapacity" column="pallet_storage_capacity"/>
+        <result property="cost" column="cost"/>
+        <result property="weight" column="weight"/>
+        <result property="volume" column="volume"/>
+        <result property="prodType" column="prod_type"/>
+        <result property="storageTypeId" column="storage_type_id"/>
+        <result property="origin" column="origin"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="tagNames" column="tag_names"/>
+    </resultMap>
+
+    <sql id="selectProdSkuVo">
+        select id, sku_code, prod_name_eng, prod_name_chn, category_id, second_category_id, first_category_id, image_url, outer_image_url, inner_image_url, is_enabled, sale_storage_unit, storage_unit, conversion_storage_to_sale_unit, pallet_storage_capacity, cost, weight, volume, prod_type, storage_type_id, origin, remark, create_time, create_by, update_by, update_time
+        from prod_sku
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.ProdSku" resultMap="ProdSkuResult">
+        <include refid="selectProdSkuVo"/>
+        <where>
+            <if test="skuCode != null and skuCode != ''">
+                AND sku_code like concat('%', #{skuCode}, '%')
+            </if>
+            <if test="prodNameEng != null and prodNameEng != ''">
+                AND prod_name_eng like concat('%', #{prodNameEng}, '%')
+            </if>
+            <if test="prodNameChn != null and prodNameChn != ''">
+                AND prod_name_chn like concat('%', #{prodNameChn}, '%')
+            </if>
+            <if test="isEnabled != null">
+                AND is_enabled = #{isEnabled}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectListByDto" parameterType="com.d0dd.wms.dto.ProductQueryDto" resultMap="ProdSkuResult">
+        select s.*,
+               c.category_name,
+               (SELECT GROUP_CONCAT(pt.tag_name) 
+                FROM prod_tag_sku pts 
+                JOIN prod_tag pt ON pts.tag_id = pt.id 
+                WHERE pts.sku_id = s.id) as tag_names,
+               (SELECT SUM(b.total_qty) FROM inventory_batch b WHERE b.sku_id = s.id 
+                <if test="warehouseId != null"> AND b.warehouse_id = #{warehouseId} </if>) as total_qty,
+               (SELECT SUM(b.available_qty) FROM inventory_batch b WHERE b.sku_id = s.id 
+                <if test="warehouseId != null"> AND b.warehouse_id = #{warehouseId} </if>) as available_qty,
+               (SELECT SUM(b.frozen_qty) FROM inventory_batch b WHERE b.sku_id = s.id 
+                <if test="warehouseId != null"> AND b.warehouse_id = #{warehouseId} </if>) as frozen_qty
+        from prod_sku s
+        left join prod_category c on s.category_id = c.id
+        <if test="tagId != null">
+            join prod_tag_sku t on s.id = t.sku_id
+        </if>
+        <where>
+            <if test="skuCode != null and skuCode != ''">
+                AND s.sku_code like concat('%', #{skuCode}, '%')
+            </if>
+            <if test="prodName != null and prodName != ''">
+                AND (s.prod_name_eng like concat('%', #{prodName}, '%') OR s.prod_name_chn like concat('%', #{prodName}, '%'))
+            </if>
+            <if test="categoryId != null">
+                AND s.category_id = #{categoryId}
+            </if>
+            <if test="isEnabled != null">
+                AND s.is_enabled = #{isEnabled}
+            </if>
+            <if test="prodType != null and prodType != ''">
+                AND s.prod_type = #{prodType}
+            </if>
+            <if test="tagId != null">
+                AND t.tag_id = #{tagId}
+            </if>
+        </where>
+        ORDER BY s.create_time DESC
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="ProdSkuResult">
+        <include refid="selectProdSkuVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectBySkuCode" parameterType="String" resultMap="ProdSkuResult">
+        <include refid="selectProdSkuVo"/>
+        where sku_code = #{skuCode}
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.ProdSku" useGeneratedKeys="true" keyProperty="id">
+        insert into prod_sku(
+            <if test="skuCode != null">sku_code,</if>
+            <if test="prodNameEng != null">prod_name_eng,</if>
+            <if test="prodNameChn != null">prod_name_chn,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="secondCategoryId != null">second_category_id,</if>
+            <if test="firstCategoryId != null">first_category_id,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="outerImageUrl != null">outer_image_url,</if>
+            <if test="innerImageUrl != null">inner_image_url,</if>
+            <if test="isEnabled != null">is_enabled,</if>
+            <if test="saleStorageUnit != null">sale_storage_unit,</if>
+            <if test="storageUnit != null">storage_unit,</if>
+            <if test="conversionStorageToSaleUnit != null">conversion_storage_to_sale_unit,</if>
+            <if test="palletStorageCapacity != null">pallet_storage_capacity,</if>
+            <if test="cost != null">cost,</if>
+            <if test="weight != null">weight,</if>
+            <if test="volume != null">volume,</if>
+            <if test="prodType != null">prod_type,</if>
+            <if test="storageTypeId != null">storage_type_id,</if>
+            <if test="origin != null">origin,</if>
+            <if test="remark != null">remark,</if>
+            <if test="isAllowSell != null">is_allow_sell,</if>
+            <if test="limitSellQty != null">limit_sell_qty,</if>
+            <if test="isPalletPicking != null">is_pallet_picking,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time
+        )values(
+            <if test="skuCode != null">#{skuCode},</if>
+            <if test="prodNameEng != null">#{prodNameEng},</if>
+            <if test="prodNameChn != null">#{prodNameChn},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="secondCategoryId != null">#{secondCategoryId},</if>
+            <if test="firstCategoryId != null">#{firstCategoryId},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="outerImageUrl != null">#{outerImageUrl},</if>
+            <if test="innerImageUrl != null">#{innerImageUrl},</if>
+            <if test="isEnabled != null">#{isEnabled},</if>
+            <if test="saleStorageUnit != null">#{saleStorageUnit},</if>
+            <if test="storageUnit != null">#{storageUnit},</if>
+            <if test="conversionStorageToSaleUnit != null">#{conversionStorageToSaleUnit},</if>
+            <if test="palletStorageCapacity != null">#{palletStorageCapacity},</if>
+            <if test="cost != null">#{cost},</if>
+            <if test="weight != null">#{weight},</if>
+            <if test="volume != null">#{volume},</if>
+            <if test="prodType != null">#{prodType},</if>
+            <if test="storageTypeId != null">#{storageTypeId},</if>
+            <if test="origin != null">#{origin},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="isAllowSell != null">#{isAllowSell},</if>
+            <if test="limitSellQty != null">#{limitSellQty},</if>
+            <if test="isPalletPicking != null">#{isPalletPicking},</if>
+            <if test="createBy != null">#{createBy},</if>
+            NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.ProdSku">
+        update prod_sku
+        <set>
+            <if test="skuCode != null">sku_code = #{skuCode},</if>
+            <if test="prodNameEng != null">prod_name_eng = #{prodNameEng},</if>
+            <if test="prodNameChn != null">prod_name_chn = #{prodNameChn},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="secondCategoryId != null">second_category_id = #{secondCategoryId},</if>
+            <if test="firstCategoryId != null">first_category_id = #{firstCategoryId},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="outerImageUrl != null">outer_image_url = #{outerImageUrl},</if>
+            <if test="innerImageUrl != null">inner_image_url = #{innerImageUrl},</if>
+            <if test="isEnabled != null">is_enabled = #{isEnabled},</if>
+            <if test="saleStorageUnit != null">sale_storage_unit = #{saleStorageUnit},</if>
+            <if test="storageUnit != null">storage_unit = #{storageUnit},</if>
+            <if test="conversionStorageToSaleUnit != null">conversion_storage_to_sale_unit = #{conversionStorageToSaleUnit},</if>
+            <if test="palletStorageCapacity != null">pallet_storage_capacity = #{palletStorageCapacity},</if>
+            <if test="cost != null">cost = #{cost},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="volume != null">volume = #{volume},</if>
+            <if test="prodType != null">prod_type = #{prodType},</if>
+            <if test="storageTypeId != null">storage_type_id = #{storageTypeId},</if>
+            <if test="origin != null">origin = #{origin},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="isAllowSell != null">is_allow_sell = #{isAllowSell},</if>
+            <if test="limitSellQty != null">limit_sell_qty = #{limitSellQty},</if>
+            <if test="isPalletPicking != null">is_pallet_picking = #{isPalletPicking},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from prod_sku where id = #{id}
+    </delete>
+    
+    <select id="count" resultType="int">
+        select count(*) from prod_sku
+    </select>
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.WarehouseRackMapper">
+
+    <resultMap id="WarehouseRackResult" type="com.d0dd.wms.entity.WarehouseRack">
+        <id property="id" column="id"/>
+        <result property="rackName" column="rack_name"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="zoneId" column="zone_id"/>
+        <result property="length" column="length"/>
+        <result property="width" column="width"/>
+        <result property="rackType" column="rack_type"/>
+        <result property="isDouble" column="is_double"/>
+        <result property="positionInDouble" column="position_in_double"/>
+        <result property="relatedRack" column="related_rack"/>
+    </resultMap>
+
+    <sql id="selectWarehouseRackVo">
+        select id, rack_name, warehouse_id, zone_id, length, width, rack_type, is_double, position_in_double, related_rack
+        from warehouse_rack
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.WarehouseRack" resultMap="WarehouseRackResult">
+        <include refid="selectWarehouseRackVo"/>
+        <where>
+            <if test="rackName != null and rackName != ''">
+                AND rack_name like concat('%', #{rackName}, '%')
+            </if>
+            <if test="warehouseId != null">
+                AND warehouse_id = #{warehouseId}
+            </if>
+            <if test="zoneId != null">
+                AND zone_id = #{zoneId}
+            </if>
+            <if test="rackType != null and rackType != ''">
+                AND rack_type = #{rackType}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="WarehouseRackResult">
+        <include refid="selectWarehouseRackVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="String" resultMap="WarehouseRackResult">
+        <include refid="selectWarehouseRackVo"/>
+        where rack_name = #{rackName}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.WarehouseRack">
+        insert into warehouse_rack
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="rackName != null">rack_name,</if>
+            <if test="warehouseId != null">warehouse_id,</if>
+            <if test="zoneId != null">zone_id,</if>
+            <if test="length != null">length,</if>
+            <if test="width != null">width,</if>
+            <if test="rackType != null">rack_type,</if>
+            <if test="isDouble != null">is_double,</if>
+            <if test="positionInDouble != null">position_in_double,</if>
+            <if test="relatedRack != null">related_rack,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="rackName != null">#{rackName},</if>
+            <if test="warehouseId != null">#{warehouseId},</if>
+            <if test="zoneId != null">#{zoneId},</if>
+            <if test="length != null">#{length},</if>
+            <if test="width != null">#{width},</if>
+            <if test="rackType != null">#{rackType},</if>
+            <if test="isDouble != null">#{isDouble},</if>
+            <if test="positionInDouble != null">#{positionInDouble},</if>
+            <if test="relatedRack != null">#{relatedRack},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.WarehouseRack">
+        update warehouse_rack
+        <set>
+            <if test="rackName != null">rack_name = #{rackName},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="zoneId != null">zone_id = #{zoneId},</if>
+            <if test="length != null">length = #{length},</if>
+            <if test="width != null">width = #{width},</if>
+            <if test="rackType != null">rack_type = #{rackType},</if>
+            <if test="isDouble != null">is_double = #{isDouble},</if>
+            <if test="positionInDouble != null">position_in_double = #{positionInDouble},</if>
+            <if test="relatedRack != null">related_rack = #{relatedRack},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from warehouse_rack where id = #{id}
+    </delete>
+</mapper>

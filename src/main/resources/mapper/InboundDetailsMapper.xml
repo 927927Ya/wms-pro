@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.InboundDetailsMapper">
+
+    <resultMap id="InboundDetailsResult" type="com.d0dd.wms.entity.InboundDetails">
+        <id property="id" column="id"/>
+        <result property="inboundId" column="inbound_id"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="batchNo" column="batch_no"/>
+        <result property="productionDate" column="production_date"/>
+        <result property="productStatus" column="product_status"/>
+        <result property="storageUnit" column="storage_unit"/>
+        <result property="toReceivedQty" column="to_received_qty"/>
+        <result property="receivedQty" column="received_qty"/>
+        <result property="weightUnit" column="weight_unit"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="palletCount" column="pallet_count"/>
+        
+        <result property="skuCode" column="sku_code"/>
+        <result property="prodNameEng" column="prod_name_eng"/>
+        <result property="prodNameChn" column="prod_name_chn"/>
+        <result property="imageUrl" column="image_url"/>
+    </resultMap>
+
+    <resultMap id="InboundSkuSummaryResult" type="com.d0dd.wms.entity.InboundDetails">
+        <id property="id" column="id"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="storageUnit" column="storage_unit"/>
+        <result property="receivedQty" column="received_qty"/>
+        <result property="weightUnit" column="weight_unit"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="prodNameEng" column="prod_name_eng"/>
+        <result property="prodNameChn" column="prod_name_chn"/>
+        <result property="imageUrl" column="image_url"/>
+    </resultMap>
+
+    <sql id="selectInboundDetailsVo">
+        select id, inbound_id, sku_id, batch_no, production_date, product_status, storage_unit, to_received_qty, received_qty, weight_unit, total_weight, pallet_count
+        from inbound_details
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.InboundDetails" resultMap="InboundDetailsResult">
+        <include refid="selectInboundDetailsVo"/>
+        <where>
+            <if test="inboundId != null">
+                AND inbound_id = #{inboundId}
+            </if>
+            <if test="skuId != null">
+                AND sku_id = #{skuId}
+            </if>
+            <if test="batchNo != null and batchNo != ''">
+                AND batch_no = #{batchNo}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="InboundDetailsResult">
+        <include refid="selectInboundDetailsVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectByInboundId" parameterType="Long" resultMap="InboundDetailsResult">
+        select d.*, s.sku_code, s.prod_name_eng, s.prod_name_chn, s.image_url
+        from inbound_details d
+        left join prod_sku s on d.sku_id = s.id
+        where d.inbound_id = #{inboundId}
+    </select>
+
+    <select id="selectSkuSummaryForOutbound" parameterType="com.d0dd.wms.dto.ProductQueryDto" resultMap="InboundSkuSummaryResult">
+        select d.sku_id as id,
+               d.sku_id,
+               max(s.sku_code) as sku_code,
+               max(s.prod_name_eng) as prod_name_eng,
+               max(s.prod_name_chn) as prod_name_chn,
+               max(s.image_url) as image_url,
+               max(d.storage_unit) as storage_unit,
+               coalesce(sum(d.received_qty), 0) as received_qty,
+               max(d.weight_unit) as weight_unit,
+               coalesce(sum(d.total_weight), 0) as total_weight
+        from inbound_details d
+        left join inbound i on d.inbound_id = i.id
+        left join prod_sku s on d.sku_id = s.id
+        <where>
+            <if test="warehouseId != null">
+                AND i.warehouse_id = #{warehouseId}
+            </if>
+            <if test="isEnabled != null">
+                AND s.is_enabled = #{isEnabled}
+            </if>
+            <if test="skuCode != null and skuCode != ''">
+                AND s.sku_code like concat('%', #{skuCode}, '%')
+            </if>
+            <if test="prodName != null and prodName != ''">
+                AND (s.prod_name_eng like concat('%', #{prodName}, '%') OR s.prod_name_chn like concat('%', #{prodName}, '%'))
+            </if>
+            <if test="categoryId != null">
+                AND s.category_id = #{categoryId}
+            </if>
+        </where>
+        group by d.sku_id
+        having coalesce(sum(d.received_qty), 0) &gt; 0
+        order by max(s.create_time) desc
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.InboundDetails">
+        insert into inbound_details
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="inboundId != null">inbound_id,</if>
+            <if test="skuId != null">sku_id,</if>
+            <if test="batchNo != null">batch_no,</if>
+            <if test="productionDate != null">production_date,</if>
+            <if test="productStatus != null">product_status,</if>
+            <if test="storageUnit != null">storage_unit,</if>
+            <if test="toReceivedQty != null">to_received_qty,</if>
+            <if test="receivedQty != null">received_qty,</if>
+            <if test="weightUnit != null">weight_unit,</if>
+            <if test="totalWeight != null">total_weight,</if>
+            <if test="palletCount != null">pallet_count,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="inboundId != null">#{inboundId},</if>
+            <if test="skuId != null">#{skuId},</if>
+            <if test="batchNo != null">#{batchNo},</if>
+            <if test="productionDate != null">#{productionDate},</if>
+            <if test="productStatus != null">#{productStatus},</if>
+            <if test="storageUnit != null">#{storageUnit},</if>
+            <if test="toReceivedQty != null">#{toReceivedQty},</if>
+            <if test="receivedQty != null">#{receivedQty},</if>
+            <if test="weightUnit != null">#{weightUnit},</if>
+            <if test="totalWeight != null">#{totalWeight},</if>
+            <if test="palletCount != null">#{palletCount},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.InboundDetails">
+        update inbound_details
+        <set>
+            <if test="inboundId != null">inbound_id = #{inboundId},</if>
+            <if test="skuId != null">sku_id = #{skuId},</if>
+            <if test="batchNo != null">batch_no = #{batchNo},</if>
+            <if test="productionDate != null">production_date = #{productionDate},</if>
+            <if test="productStatus != null">product_status = #{productStatus},</if>
+            <if test="storageUnit != null">storage_unit = #{storageUnit},</if>
+            <if test="toReceivedQty != null">to_received_qty = #{toReceivedQty},</if>
+            <if test="receivedQty != null">received_qty = #{receivedQty},</if>
+            <if test="weightUnit != null">weight_unit = #{weightUnit},</if>
+            <if test="totalWeight != null">total_weight = #{totalWeight},</if>
+            <if test="palletCount != null">pallet_count = #{palletCount},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from inbound_details where id = #{id}
+    </delete>
+    
+    <delete id="deleteByInboundId" parameterType="Long">
+        delete from inbound_details where inbound_id = #{inboundId}
+    </delete>
+</mapper>

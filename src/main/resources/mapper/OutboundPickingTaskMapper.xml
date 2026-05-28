@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.OutboundPickingTaskMapper">
+
+    <resultMap id="OutboundPickingTaskResult" type="com.d0dd.wms.entity.OutboundPickingTask">
+        <id property="id" column="id"/>
+        <result property="outboundId" column="outbound_id"/>
+        <result property="outboundDetailsId" column="outbound_details_id"/>
+        <result property="inventoryBinId" column="inventory_bin_id"/>
+        <result property="palletName" column="pallet_name"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="toPickedQty" column="to_picked_qty"/>
+        <result property="pickedQty" column="picked_qty"/>
+        <result property="qtyUnit" column="qty_unit"/>
+        <result property="operationTime" column="operation_time"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectOutboundPickingTaskVo">
+        select t.id,
+               d.outbound_id as outbound_id,
+               t.outbound_details_id,
+               t.inventory_bin_id,
+               t.pallet_name,
+               t.task_status,
+               t.to_picked_qty,
+               t.picked_qty,
+               t.qty_unit,
+               t.operation_time,
+               t.operator_id,
+               t.remark
+        from outbound_picking_task t
+        left join outbound_details d on t.outbound_details_id = d.id
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.OutboundPickingTask" resultMap="OutboundPickingTaskResult">
+        <include refid="selectOutboundPickingTaskVo"/>
+        <where>
+            <if test="outboundId != null">
+                AND d.outbound_id = #{outboundId}
+            </if>
+            <if test="outboundDetailsId != null">
+                AND t.outbound_details_id = #{outboundDetailsId}
+            </if>
+            <if test="inventoryBinId != null">
+                AND t.inventory_bin_id = #{inventoryBinId}
+            </if>
+            <if test="palletName != null and palletName != ''">
+                AND t.pallet_name like concat('%', #{palletName}, '%')
+            </if>
+            <if test="taskStatus != null">
+                AND t.task_status = #{taskStatus}
+            </if>
+            <if test="operatorId != null">
+                AND t.operator_id = #{operatorId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="OutboundPickingTaskResult">
+        <include refid="selectOutboundPickingTaskVo"/>
+        where t.id = #{id}
+    </select>
+    
+    <select id="selectByOutboundDetailsId" parameterType="Long" resultMap="OutboundPickingTaskResult">
+        <include refid="selectOutboundPickingTaskVo"/>
+        where t.outbound_details_id = #{outboundDetailsId}
+    </select>
+    
+    <select id="countByStatus" parameterType="Integer" resultType="int">
+        select count(1) from outbound_picking_task where task_status = #{status}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.OutboundPickingTask">
+        insert into outbound_picking_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="outboundDetailsId != null">outbound_details_id,</if>
+            <if test="inventoryBinId != null">inventory_bin_id,</if>
+            <if test="palletName != null">pallet_name,</if>
+            <if test="taskStatus != null">task_status,</if>
+            <if test="toPickedQty != null">to_picked_qty,</if>
+            <if test="pickedQty != null">picked_qty,</if>
+            <if test="qtyUnit != null">qty_unit,</if>
+            <if test="operationTime != null">operation_time,</if>
+            <if test="operatorId != null">operator_id,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="outboundDetailsId != null">#{outboundDetailsId},</if>
+            <if test="inventoryBinId != null">#{inventoryBinId},</if>
+            <if test="palletName != null">#{palletName},</if>
+            <if test="taskStatus != null">#{taskStatus},</if>
+            <if test="toPickedQty != null">#{toPickedQty},</if>
+            <if test="pickedQty != null">#{pickedQty},</if>
+            <if test="qtyUnit != null">#{qtyUnit},</if>
+            <if test="operationTime != null">#{operationTime},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.OutboundPickingTask">
+        update outbound_picking_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="outboundDetailsId != null">outbound_details_id = #{outboundDetailsId},</if>
+            <if test="inventoryBinId != null">inventory_bin_id = #{inventoryBinId},</if>
+            <if test="palletName != null">pallet_name = #{palletName},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="toPickedQty != null">to_picked_qty = #{toPickedQty},</if>
+            <if test="pickedQty != null">picked_qty = #{pickedQty},</if>
+            <if test="qtyUnit != null">qty_unit = #{qtyUnit},</if>
+            <if test="operationTime != null">operation_time = #{operationTime},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from outbound_picking_task where id = #{id}
+    </delete>
+    
+    <delete id="deleteByOutboundDetailsId" parameterType="Long">
+        delete from outbound_picking_task where outbound_details_id = #{outboundDetailsId}
+    </delete>
+</mapper>

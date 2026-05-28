@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.OutboundDetailsMapper">
+
+    <resultMap id="OutboundDetailsResult" type="com.d0dd.wms.entity.OutboundDetails">
+        <id property="id" column="id"/>
+        <result property="outboundId" column="outbound_id"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="outQty" column="out_qty"/>
+        <result property="qtyUnit" column="qty_unit"/>
+        <result property="outWeight" column="out_weight"/>
+        <result property="nonStandardWeight" column="non_standard_weight"/>
+        <result property="weightUnit" column="weight_unit"/>
+    </resultMap>
+
+    <sql id="selectOutboundDetailsVo">
+        select id, outbound_id, sku_id, out_qty, qty_unit, out_weight, non_standard_weight, weight_unit
+        from outbound_details
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.OutboundDetails" resultMap="OutboundDetailsResult">
+        <include refid="selectOutboundDetailsVo"/>
+        <where>
+            <if test="outboundId != null">
+                AND outbound_id = #{outboundId}
+            </if>
+            <if test="skuId != null">
+                AND sku_id = #{skuId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="OutboundDetailsResult">
+        <include refid="selectOutboundDetailsVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectByOutboundId" parameterType="Long" resultMap="OutboundDetailsResult">
+        <include refid="selectOutboundDetailsVo"/>
+        where outbound_id = #{outboundId}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.OutboundDetails" useGeneratedKeys="true" keyProperty="id">
+        insert into outbound_details
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="outboundId != null">outbound_id,</if>
+            <if test="skuId != null">sku_id,</if>
+            <if test="outQty != null">out_qty,</if>
+            <if test="qtyUnit != null">qty_unit,</if>
+            <if test="outWeight != null">out_weight,</if>
+            <if test="nonStandardWeight != null">non_standard_weight,</if>
+            <if test="weightUnit != null">weight_unit,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="outboundId != null">#{outboundId},</if>
+            <if test="skuId != null">#{skuId},</if>
+            <if test="outQty != null">#{outQty},</if>
+            <if test="qtyUnit != null">#{qtyUnit},</if>
+            <if test="outWeight != null">#{outWeight},</if>
+            <if test="nonStandardWeight != null">#{nonStandardWeight},</if>
+            <if test="weightUnit != null">#{weightUnit},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.OutboundDetails">
+        update outbound_details
+        <set>
+            <if test="outboundId != null">outbound_id = #{outboundId},</if>
+            <if test="skuId != null">sku_id = #{skuId},</if>
+            <if test="outQty != null">out_qty = #{outQty},</if>
+            <if test="qtyUnit != null">qty_unit = #{qtyUnit},</if>
+            <if test="outWeight != null">out_weight = #{outWeight},</if>
+            <if test="nonStandardWeight != null">non_standard_weight = #{nonStandardWeight},</if>
+            <if test="weightUnit != null">weight_unit = #{weightUnit},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from outbound_details where id = #{id}
+    </delete>
+    
+    <delete id="deleteByOutboundId" parameterType="Long">
+        delete from outbound_details where outbound_id = #{outboundId}
+    </delete>
+</mapper>

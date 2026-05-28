@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.InventoryBinMapper">
+
+    <resultMap id="InventoryBinResult" type="com.d0dd.wms.entity.InventoryBin">
+        <id property="id" column="id"/>
+        <result property="binId" column="bin_id"/>
+        <result property="batchId" column="batch_id"/>
+        <result property="productStatus" column="product_status"/>
+        <result property="totalQty" column="total_qty"/>
+        
+        <!-- Transient fields -->
+        <result property="binName" column="bin_name"/>
+        <result property="zoneName" column="zone_name"/>
+        <result property="batchNo" column="batch_no"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="prodName" column="prod_name"/>
+        <result property="warehouseName" column="warehouse_name"/>
+    </resultMap>
+
+    <sql id="selectInventoryBinVo">
+        select id, bin_id, batch_id, product_status, total_qty
+        from inventory_bin
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.InventoryBin" resultMap="InventoryBinResult">
+        <include refid="selectInventoryBinVo"/>
+        <where>
+            <if test="binId != null and binId != ''">
+                AND bin_id = #{binId}
+            </if>
+            <if test="batchId != null">
+                AND batch_id = #{batchId}
+            </if>
+            <if test="productStatus != null and productStatus != ''">
+                AND product_status = #{productStatus}
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectListByDto" parameterType="com.d0dd.wms.dto.StorageQueryDto" resultMap="InventoryBinResult">
+        select ib.id, ib.bin_id, ib.batch_id, ib.product_status, ib.total_qty,
+               wb.bin_name, COALESCE(wz.zone_name, wz_rack.zone_name) as zone_name, b.batch_no, s.sku_code, s.prod_name_chn as prod_name, w.warehouse_name
+        from inventory_bin ib
+        left join warehouse_bin wb on (ib.bin_id COLLATE utf8mb4_general_ci = CAST(wb.id AS CHAR) COLLATE utf8mb4_general_ci OR ib.bin_id COLLATE utf8mb4_general_ci = wb.bin_name COLLATE utf8mb4_general_ci)
+        left join warehouse_zone wz on wb.zone_id = wz.id
+        left join warehouse_rack wr on wb.rack_id = wr.id
+        left join warehouse_zone wz_rack on wr.zone_id = wz_rack.id
+        left join inventory_batch b on ib.batch_id = b.id
+        left join prod_sku s on b.sku_id = s.id
+        left join warehouse w on b.warehouse_id = w.id
+        <where>
+            <if test="skuCode != null and skuCode != ''">
+                AND s.sku_code like concat('%', #{skuCode}, '%')
+            </if>
+            <if test="prodName != null and prodName != ''">
+                AND (s.prod_name_eng like concat('%', #{prodName}, '%') OR s.prod_name_chn like concat('%', #{prodName}, '%'))
+            </if>
+            <if test="warehouseId != null">
+                AND b.warehouse_id = #{warehouseId}
+            </if>
+            <if test="binName != null and binName != ''">
+                AND wb.bin_name like concat('%', #{binName}, '%')
+            </if>
+            <if test="batchNo != null and batchNo != ''">
+                AND b.batch_no like concat('%', #{batchNo}, '%')
+            </if>
+            <if test="minQty != null">
+                AND ib.total_qty &gt;= #{minQty}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="InventoryBinResult">
+        <include refid="selectInventoryBinVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectByBatchId" parameterType="Long" resultMap="InventoryBinResult">
+        select ib.id, ib.bin_id, ib.batch_id, ib.product_status, ib.total_qty,
+               wb.bin_name, COALESCE(wz.zone_name, wz_rack.zone_name) as zone_name, w.warehouse_name, b.batch_no
+        from inventory_bin ib
+        left join warehouse_bin wb on (ib.bin_id COLLATE utf8mb4_general_ci = CAST(wb.id AS CHAR) COLLATE utf8mb4_general_ci OR ib.bin_id COLLATE utf8mb4_general_ci = wb.bin_name COLLATE utf8mb4_general_ci)
+        left join warehouse_zone wz on wb.zone_id = wz.id
+        left join warehouse_rack wr on wb.rack_id = wr.id
+        left join warehouse_zone wz_rack on wr.zone_id = wz_rack.id
+        left join warehouse w on wb.warehouse_id = w.id
+        left join inventory_batch b on ib.batch_id = b.id
+        where ib.batch_id = #{batchId}
+    </select>
+
+    <select id="selectAvailableForSkuInWarehouse" resultMap="InventoryBinResult">
+        select ib.id, ib.bin_id, ib.batch_id, ib.product_status, ib.total_qty,
+               b.batch_no
+        from inventory_bin ib
+        inner join inventory_batch b on ib.batch_id = b.id
+        where b.sku_id = #{skuId}
+          and b.warehouse_id = #{warehouseId}
+          and ib.total_qty &gt;= #{minQty}
+    </select>
+
+    <select id="countOccupiedBins" resultType="int">
+        select count(distinct bin_id) from inventory_bin where total_qty > 0
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.InventoryBin">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT IFNULL(#{id}, (UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000 + FLOOR(RAND() * 1000)))
+        </selectKey>
+        insert into inventory_bin (id, bin_id, batch_id, product_status, total_qty)
+        values (#{id}, #{binId}, #{batchId}, #{productStatus}, #{totalQty})
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.InventoryBin">
+        update inventory_bin
+        <set>
+            <if test="binId != null">bin_id = #{binId},</if>
+            <if test="batchId != null">batch_id = #{batchId},</if>
+            <if test="productStatus != null">product_status = #{productStatus},</if>
+            <if test="totalQty != null">total_qty = #{totalQty},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from inventory_bin where id = #{id}
+    </delete>
+</mapper>

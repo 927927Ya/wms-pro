@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.OutboundMapper">
+
+    <resultMap id="OutboundResult" type="com.d0dd.wms.entity.Outbound">
+        <id property="id" column="id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="outboundType" column="outbound_type"/>
+        <result property="outboundStatus" column="outbound_status"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="outboundDate" column="outbound_date"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectOutboundVo">
+        select id, warehouse_id, outbound_type, outbound_status, customer_id, create_by, create_time, outbound_date, remark
+        from outbound
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.dto.OutboundOrderQueryDto" resultMap="OutboundResult">
+        <include refid="selectOutboundVo"/>
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="warehouseId != null">
+                AND warehouse_id = #{warehouseId}
+            </if>
+            <if test="outboundType != null and outboundType != ''">
+                AND outbound_type = #{outboundType}
+            </if>
+            <if test="outboundStatus != null and outboundStatus != ''">
+                AND outbound_status = #{outboundStatus}
+            </if>
+            <if test="customerId != null">
+                AND customer_id = #{customerId}
+            </if>
+            <if test="outboundDate != null">
+                AND outbound_date = #{outboundDate}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND create_time &lt;= #{endTime}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="countByStatus" resultType="int">
+        select count(*) from outbound
+        where outbound_status in
+        <foreach item="status" collection="list" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="OutboundResult">
+        <include refid="selectOutboundVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.Outbound" useGeneratedKeys="true" keyProperty="id">
+        insert into outbound
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="warehouseId != null">warehouse_id,</if>
+            <if test="outboundType != null">outbound_type,</if>
+            <if test="outboundStatus != null">outbound_status,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="outboundDate != null">outbound_date,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="warehouseId != null">#{warehouseId},</if>
+            <if test="outboundType != null">#{outboundType},</if>
+            <if test="outboundStatus != null">#{outboundStatus},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="outboundDate != null">#{outboundDate},</if>
+            <if test="remark != null">#{remark},</if>
+            NOW()
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.Outbound">
+        update outbound
+        <set>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="outboundType != null">outbound_type = #{outboundType},</if>
+            <if test="outboundStatus != null">outbound_status = #{outboundStatus},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="outboundDate != null">outbound_date = #{outboundDate},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from outbound where id = #{id}
+    </delete>
+</mapper>

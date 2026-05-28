@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.WarehouseMapper">
+
+    <resultMap id="WarehouseResult" type="com.d0dd.wms.entity.Warehouse">
+        <id property="id" column="id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="length" column="length"/>
+        <result property="width" column="width"/>
+        <result property="isActive" column="is_active"/>
+        <result property="address" column="address"/>
+        <result property="city" column="city"/>
+        <result property="state" column="state"/>
+        <result property="postalCode" column="postal_code"/>
+        <result property="remark" column="remark"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectWarehouseVo">
+        select id, warehouse_code, warehouse_name, length, width, is_active, address, city, state, postal_code, remark, order_num, create_by, create_time, update_by, update_time
+        from warehouse
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.Warehouse" resultMap="WarehouseResult">
+        <include refid="selectWarehouseVo"/>
+        <where>
+            <if test="warehouseCode != null and warehouseCode != ''">
+                AND warehouse_code like concat('%', #{warehouseCode}, '%')
+            </if>
+            <if test="warehouseName != null and warehouseName != ''">
+                AND warehouse_name like concat('%', #{warehouseName}, '%')
+            </if>
+            <if test="isActive != null and isActive != ''">
+                AND is_active = #{isActive}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="WarehouseResult">
+        <include refid="selectWarehouseVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="String" resultMap="WarehouseResult">
+        <include refid="selectWarehouseVo"/>
+        where warehouse_name = #{warehouseName}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.Warehouse" useGeneratedKeys="true" keyProperty="id">
+        insert into warehouse(
+            <if test="warehouseCode != null">warehouse_code,</if>
+            <if test="warehouseName != null">warehouse_name,</if>
+            <if test="length != null">length,</if>
+            <if test="width != null">width,</if>
+            <if test="isActive != null">is_active,</if>
+            <if test="address != null">address,</if>
+            <if test="city != null">city,</if>
+            <if test="state != null">state,</if>
+            <if test="postalCode != null">postal_code,</if>
+            <if test="remark != null">remark,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time
+        )values(
+            <if test="warehouseCode != null">#{warehouseCode},</if>
+            <if test="warehouseName != null">#{warehouseName},</if>
+            <if test="length != null">#{length},</if>
+            <if test="width != null">#{width},</if>
+            <if test="isActive != null">#{isActive},</if>
+            <if test="address != null">#{address},</if>
+            <if test="city != null">#{city},</if>
+            <if test="state != null">#{state},</if>
+            <if test="postalCode != null">#{postalCode},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="createBy != null">#{createBy},</if>
+            NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.Warehouse">
+        update warehouse
+        <set>
+            <if test="warehouseCode != null">warehouse_code = #{warehouseCode},</if>
+            <if test="warehouseName != null">warehouse_name = #{warehouseName},</if>
+            <if test="length != null">length = #{length},</if>
+            <if test="width != null">width = #{width},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="postalCode != null">postal_code = #{postalCode},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="deleteById" parameterType="Long">
+        update warehouse set is_active = '0' where id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.WarehouseBinMapper">
+
+    <resultMap id="WarehouseBinResult" type="com.d0dd.wms.entity.WarehouseBin">
+        <id property="id" column="id"/>
+        <result property="binName" column="bin_name"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="zoneId" column="zone_id"/>
+        <result property="rackId" column="rack_id"/>
+        <result property="columnNum" column="column_num"/>
+        <result property="onZoomLevel" column="on_zoom_level"/>
+        <result property="rackType" column="rack_type"/>
+        <result property="binType" column="bin_type"/>
+        <result property="maximumCapcity" column="maximum_capcity"/>
+        <result property="capcityUnit" column="capcity_unit"/>
+        <result property="maximumVolume" column="maximum_volume"/>
+        <result property="volumeUnit" column="volume_unit"/>
+        <result property="storageRule" column="storage_rule"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="lowStorageAlertRato" column="low_storage_alert_rato"/>
+    </resultMap>
+
+    <sql id="selectWarehouseBinVo">
+        select id, bin_name, warehouse_id, zone_id, rack_id, column_num, on_zoom_level, rack_type, bin_type, maximum_capcity, capcity_unit, maximum_volume, volume_unit, storage_rule, is_enabled, low_storage_alert_rato
+        from warehouse_bin
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.WarehouseBin" resultMap="WarehouseBinResult">
+        <include refid="selectWarehouseBinVo"/>
+        <where>
+            <if test="binName != null and binName != ''">
+                AND bin_name like concat('%', #{binName}, '%')
+            </if>
+            <if test="warehouseId != null">
+                AND warehouse_id = #{warehouseId}
+            </if>
+            <if test="zoneId != null">
+                AND zone_id = #{zoneId}
+            </if>
+            <if test="rackId != null">
+                AND rack_id = #{rackId}
+            </if>
+            <if test="rackType != null and rackType != ''">
+                AND rack_type = #{rackType}
+            </if>
+            <if test="binType != null and binType != ''">
+                AND bin_type = #{binType}
+            </if>
+            <if test="isEnabled != null">
+                AND is_enabled = #{isEnabled}
+            </if>
+            <if test="storageRule != null and storageRule != ''">
+                AND storage_rule = #{storageRule}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="WarehouseBinResult">
+        <include refid="selectWarehouseBinVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="String" resultMap="WarehouseBinResult">
+        <include refid="selectWarehouseBinVo"/>
+        where bin_name = #{binName}
+        limit 1
+    </select>
+
+    <select id="countAll" resultType="int">
+        select count(*) from warehouse_bin where is_enabled = 1
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.WarehouseBin" useGeneratedKeys="true" keyProperty="id">
+        insert into warehouse_bin
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="binName != null">bin_name,</if>
+            <if test="warehouseId != null">warehouse_id,</if>
+            <if test="zoneId != null">zone_id,</if>
+            <if test="rackId != null">rack_id,</if>
+            <if test="columnNum != null">column_num,</if>
+            <if test="onZoomLevel != null">on_zoom_level,</if>
+            <if test="rackType != null">rack_type,</if>
+            <if test="binType != null">bin_type,</if>
+            <if test="maximumCapcity != null">maximum_capcity,</if>
+            <if test="capcityUnit != null">capcity_unit,</if>
+            <if test="maximumVolume != null">maximum_volume,</if>
+            <if test="volumeUnit != null">volume_unit,</if>
+            <if test="storageRule != null">storage_rule,</if>
+            <if test="isEnabled != null">is_enabled,</if>
+            <if test="lowStorageAlertRato != null">low_storage_alert_rato,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="binName != null">#{binName},</if>
+            <if test="warehouseId != null">#{warehouseId},</if>
+            <if test="zoneId != null">#{zoneId},</if>
+            <if test="rackId != null">#{rackId},</if>
+            <if test="columnNum != null">#{columnNum},</if>
+            <if test="onZoomLevel != null">#{onZoomLevel},</if>
+            <if test="rackType != null">#{rackType},</if>
+            <if test="binType != null">#{binType},</if>
+            <if test="maximumCapcity != null">#{maximumCapcity},</if>
+            <if test="capcityUnit != null">#{capcityUnit},</if>
+            <if test="maximumVolume != null">#{maximumVolume},</if>
+            <if test="volumeUnit != null">#{volumeUnit},</if>
+            <if test="storageRule != null">#{storageRule},</if>
+            <if test="isEnabled != null">#{isEnabled},</if>
+            <if test="lowStorageAlertRato != null">#{lowStorageAlertRato},</if>
+        </trim>
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into warehouse_bin (
+            bin_name, warehouse_id, zone_id, rack_id, column_num, on_zoom_level, rack_type, bin_type,
+            maximum_capcity, capcity_unit, maximum_volume, volume_unit, storage_rule,
+            is_enabled, low_storage_alert_rato
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.binName}, #{item.warehouseId}, #{item.zoneId}, #{item.rackId}, #{item.columnNum}, #{item.onZoomLevel}, #{item.rackType}, #{item.binType},
+                #{item.maximumCapcity}, #{item.capcityUnit}, #{item.maximumVolume}, #{item.volumeUnit}, #{item.storageRule},
+                #{item.isEnabled}, #{item.lowStorageAlertRato}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.WarehouseBin">
+        update warehouse_bin
+        <set>
+            <if test="binName != null">bin_name = #{binName},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="zoneId != null">zone_id = #{zoneId},</if>
+            <if test="rackId != null">rack_id = #{rackId},</if>
+            <if test="columnNum != null">column_num = #{columnNum},</if>
+            <if test="onZoomLevel != null">on_zoom_level = #{onZoomLevel},</if>
+            <if test="rackType != null">rack_type = #{rackType},</if>
+            <if test="binType != null">bin_type = #{binType},</if>
+            <if test="maximumCapcity != null">maximum_capcity = #{maximumCapcity},</if>
+            <if test="capcityUnit != null">capcity_unit = #{capcityUnit},</if>
+            <if test="maximumVolume != null">maximum_volume = #{maximumVolume},</if>
+            <if test="volumeUnit != null">volume_unit = #{volumeUnit},</if>
+            <if test="storageRule != null">storage_rule = #{storageRule},</if>
+            <if test="isEnabled != null">is_enabled = #{isEnabled},</if>
+            <if test="lowStorageAlertRato != null">low_storage_alert_rato = #{lowStorageAlertRato},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="deleteById" parameterType="Long">
+        update warehouse_bin set is_enabled = 0 where id = #{id}
+    </update>
+</mapper>

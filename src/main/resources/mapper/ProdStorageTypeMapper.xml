@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.ProdStorageTypeMapper">
+
+    <resultMap id="ProdStorageTypeResult" type="com.d0dd.wms.entity.ProdStorageType">
+        <id property="id" column="id"/>
+        <result property="storageType" column="storage_type"/>
+    </resultMap>
+
+    <sql id="selectProdStorageTypeVo">
+        select id, storage_type from prod_storage_type
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.ProdStorageType" resultMap="ProdStorageTypeResult">
+        <include refid="selectProdStorageTypeVo"/>
+        <where>
+            <if test="storageType != null and storageType != ''">
+                AND storage_type like concat('%', #{storageType}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="ProdStorageTypeResult">
+        <include refid="selectProdStorageTypeVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.ProdStorageType" useGeneratedKeys="true" keyProperty="id">
+        insert into prod_storage_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="storageType != null">storage_type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="storageType != null">#{storageType},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.ProdStorageType">
+        update prod_storage_type
+        <set>
+            <if test="storageType != null">storage_type = #{storageType},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from prod_storage_type where id = #{id}
+    </delete>
+</mapper>

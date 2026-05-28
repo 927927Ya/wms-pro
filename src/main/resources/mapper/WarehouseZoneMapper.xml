@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.WarehouseZoneMapper">
+
+    <resultMap id="WarehouseZoneResult" type="com.d0dd.wms.entity.WarehouseZone">
+        <id property="id" column="id"/>
+        <result property="zoneName" column="zone_name"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="layers" column="layers"/>
+        <result property="length" column="length"/>
+        <result property="width" column="width"/>
+        <result property="isEnabled" column="is_enabled"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectWarehouseZoneVo">
+        select id, zone_name, warehouse_id, layers, length, width, is_enabled, remark
+        from warehouse_zone
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.WarehouseZone" resultMap="WarehouseZoneResult">
+        <include refid="selectWarehouseZoneVo"/>
+        <where>
+            <if test="zoneName != null and zoneName != ''">
+                AND zone_name like concat('%', #{zoneName}, '%')
+            </if>
+            <if test="warehouseId != null">
+                AND warehouse_id = #{warehouseId}
+            </if>
+            <if test="isEnabled != null">
+                AND is_enabled = #{isEnabled}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="WarehouseZoneResult">
+        <include refid="selectWarehouseZoneVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="String" resultMap="WarehouseZoneResult">
+        <include refid="selectWarehouseZoneVo"/>
+        where zone_name = #{zoneName}
+        limit 1
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.WarehouseZone" useGeneratedKeys="true" keyProperty="id">
+        insert into warehouse_zone
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="zoneName != null">zone_name,</if>
+            <if test="warehouseId != null">warehouse_id,</if>
+            <if test="layers != null">layers,</if>
+            <if test="length != null">length,</if>
+            <if test="width != null">width,</if>
+            <if test="isEnabled != null">is_enabled,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="zoneName != null">#{zoneName},</if>
+            <if test="warehouseId != null">#{warehouseId},</if>
+            <if test="layers != null">#{layers},</if>
+            <if test="length != null">#{length},</if>
+            <if test="width != null">#{width},</if>
+            <if test="isEnabled != null">#{isEnabled},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.WarehouseZone">
+        update warehouse_zone
+        <set>
+            <if test="zoneName != null">zone_name = #{zoneName},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="layers != null">layers = #{layers},</if>
+            <if test="length != null">length = #{length},</if>
+            <if test="width != null">width = #{width},</if>
+            <if test="isEnabled != null">is_enabled = #{isEnabled},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="deleteById" parameterType="Long">
+        update warehouse_zone set is_enabled = 0 where id = #{id}
+    </update>
+</mapper>

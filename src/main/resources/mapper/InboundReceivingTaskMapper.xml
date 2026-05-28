@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.InboundReceivingTaskMapper">
+
+    <resultMap id="InboundReceivingTaskResult" type="com.d0dd.wms.entity.InboundReceivingTask">
+        <id property="id" column="id"/>
+        <result property="inboundDetailsId" column="inbound_details_id"/>
+        <result property="inboundId" column="inbound_id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="inboundNo" column="inbound_no"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="prodNameEng" column="prod_name_eng"/>
+        <result property="prodNameChn" column="prod_name_chn"/>
+        <result property="palletName" column="pallet_name"/>
+        <result property="toReceivedQty" column="to_received_qty"/>
+        <result property="receivedQty" column="received_qty"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="binId" column="bin_id"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="operationTime" column="operation_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectInboundReceivingTaskVo">
+        select t.id,
+               t.inbound_details_id,
+               d.inbound_id,
+               i.warehouse_id,
+               w.warehouse_name,
+               concat('', i.id) as inbound_no,
+               d.sku_id,
+               s.sku_code,
+               s.prod_name_eng,
+               s.prod_name_chn,
+               t.pallet_name,
+               t.to_received_qty,
+               t.received_qty,
+               t.task_status,
+               t.bin_id,
+               t.operator_id,
+               ifnull(t.operation_time, i.create_time) as create_time,
+               t.operation_time,
+               t.remark
+        from inbound_receiving_task t
+        left join inbound_details d on t.inbound_details_id = d.id
+        left join inbound i on d.inbound_id = i.id
+        left join warehouse w on i.warehouse_id = w.id
+        left join prod_sku s on d.sku_id = s.id
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.InboundReceivingTask" resultMap="InboundReceivingTaskResult">
+        <include refid="selectInboundReceivingTaskVo"/>
+        <where>
+            <if test="inboundDetailsId != null">
+                AND t.inbound_details_id = #{inboundDetailsId}
+            </if>
+            <if test="inboundId != null">
+                AND d.inbound_id = #{inboundId}
+            </if>
+            <if test="warehouseId != null">
+                AND i.warehouse_id = #{warehouseId}
+            </if>
+            <if test="inboundNo != null and inboundNo != ''">
+                AND concat('', i.id) like concat('%', #{inboundNo}, '%')
+            </if>
+            <if test="skuCode != null and skuCode != ''">
+                AND s.sku_code like concat('%', #{skuCode}, '%')
+            </if>
+            <if test="palletName != null and palletName != ''">
+                AND t.pallet_name like concat('%', #{palletName}, '%')
+            </if>
+            <if test="taskStatus != null">
+                AND t.task_status = #{taskStatus}
+            </if>
+            <if test="binId != null">
+                AND t.bin_id = #{binId}
+            </if>
+            <if test="operatorId != null">
+                AND t.operator_id = #{operatorId}
+            </if>
+        </where>
+        order by t.id desc
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="InboundReceivingTaskResult">
+        <include refid="selectInboundReceivingTaskVo"/>
+        where t.id = #{id}
+    </select>
+    
+    <select id="selectByInboundDetailsId" parameterType="Long" resultMap="InboundReceivingTaskResult">
+        <include refid="selectInboundReceivingTaskVo"/>
+        where t.inbound_details_id = #{inboundDetailsId}
+    </select>
+    
+    <select id="countByStatus" parameterType="Integer" resultType="int">
+        select count(1) from inbound_receiving_task where task_status = #{status}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.InboundReceivingTask">
+        insert into inbound_receiving_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="inboundDetailsId != null">inbound_details_id,</if>
+            <if test="palletName != null">pallet_name,</if>
+            <if test="toReceivedQty != null">to_received_qty,</if>
+            <if test="receivedQty != null">received_qty,</if>
+            <if test="taskStatus != null">task_status,</if>
+            <if test="binId != null">bin_id,</if>
+            <if test="operatorId != null">operator_id,</if>
+            <if test="operationTime != null">operation_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="inboundDetailsId != null">#{inboundDetailsId},</if>
+            <if test="palletName != null">#{palletName},</if>
+            <if test="toReceivedQty != null">#{toReceivedQty},</if>
+            <if test="receivedQty != null">#{receivedQty},</if>
+            <if test="taskStatus != null">#{taskStatus},</if>
+            <if test="binId != null">#{binId},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="operationTime != null">#{operationTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.InboundReceivingTask">
+        update inbound_receiving_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="inboundDetailsId != null">inbound_details_id = #{inboundDetailsId},</if>
+            <if test="palletName != null">pallet_name = #{palletName},</if>
+            <if test="toReceivedQty != null">to_received_qty = #{toReceivedQty},</if>
+            <if test="receivedQty != null">received_qty = #{receivedQty},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="binId != null">bin_id = #{binId},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="operationTime != null">operation_time = #{operationTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from inbound_receiving_task where id = #{id}
+    </delete>
+    
+    <delete id="deleteByInboundDetailsId" parameterType="Long">
+        delete from inbound_receiving_task where inbound_details_id = #{inboundDetailsId}
+    </delete>
+</mapper>

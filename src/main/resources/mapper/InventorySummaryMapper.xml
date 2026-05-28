@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.InventorySummaryMapper">
+
+    <resultMap id="InventorySummaryResult" type="com.d0dd.wms.entity.InventorySummary">
+        <id property="id" column="id"/>
+        <result property="skuId" column="sku_id"/>
+        <result property="totalQty" column="total_qty"/>
+        <result property="availableQty" column="available_qty"/>
+        <result property="frozenQty" column="frozen_qty"/>
+        <result property="updateTime" column="update_time"/>
+        
+        <!-- Transient -->
+        <result property="skuCode" column="sku_code"/>
+        <result property="prodName" column="prod_name"/>
+        <result property="prodNameEng" column="prod_name_eng"/>
+        <result property="prodNameChn" column="prod_name_chn"/>
+    </resultMap>
+
+    <sql id="selectInventorySummaryVo">
+        select id, sku_id, total_qty, available_qty, frozen_qty, update_time
+        from inventory_summary
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.InventorySummary" resultMap="InventorySummaryResult">
+        <include refid="selectInventorySummaryVo"/>
+        <where>
+            <if test="skuId != null">
+                AND sku_id = #{skuId}
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectListByDto" parameterType="com.d0dd.wms.dto.StorageQueryDto" resultMap="InventorySummaryResult">
+        select i.id, i.sku_id, i.total_qty, i.available_qty, i.frozen_qty, i.update_time,
+               s.sku_code, s.prod_name_chn, s.prod_name_eng
+        from inventory_summary i
+        left join prod_sku s on i.sku_id = s.id
+        <where>
+            <if test="skuCode != null and skuCode != ''">
+                AND s.sku_code like concat('%', #{skuCode}, '%')
+            </if>
+            <if test="prodName != null and prodName != ''">
+                AND (s.prod_name_eng like concat('%', #{prodName}, '%') OR s.prod_name_chn like concat('%', #{prodName}, '%'))
+            </if>
+            <if test="categoryId != null">
+                AND s.category_id = #{categoryId}
+            </if>
+            <if test="prodType != null and prodType != ''">
+                AND s.prod_type = #{prodType}
+            </if>
+            <if test="minQty != null">
+                AND i.total_qty &gt;= #{minQty}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="InventorySummaryResult">
+        <include refid="selectInventorySummaryVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectBySkuId" parameterType="Long" resultMap="InventorySummaryResult">
+        <include refid="selectInventorySummaryVo"/>
+        where sku_id = #{skuId}
+    </select>
+
+    <select id="sumTotalQty" resultType="java.math.BigDecimal">
+        select ifnull(sum(total_qty), 0) from inventory_summary
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.InventorySummary" useGeneratedKeys="true" keyProperty="id">
+        insert into inventory_summary
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="skuId != null">sku_id,</if>
+            <if test="totalQty != null">total_qty,</if>
+            <if test="availableQty != null">available_qty,</if>
+            <if test="frozenQty != null">frozen_qty,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="skuId != null">#{skuId},</if>
+            <if test="totalQty != null">#{totalQty},</if>
+            <if test="availableQty != null">#{availableQty},</if>
+            <if test="frozenQty != null">#{frozenQty},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.InventorySummary">
+        update inventory_summary
+        <set>
+            <if test="skuId != null">sku_id = #{skuId},</if>
+            <if test="totalQty != null">total_qty = #{totalQty},</if>
+            <if test="availableQty != null">available_qty = #{availableQty},</if>
+            <if test="frozenQty != null">frozen_qty = #{frozenQty},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from inventory_summary where id = #{id}
+    </delete>
+</mapper>

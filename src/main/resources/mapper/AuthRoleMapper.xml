@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.AuthRoleMapper">
+
+    <delete id="deleteByRoleId" parameterType="Long">
+        delete from auth_role where role_id = #{roleId}
+    </delete>
+
+    <insert id="batchInsert">
+        insert into auth_role (role_id, authority_id)
+        values
+        <foreach collection="authorityIds" item="authorityId" separator=",">
+            (#{roleId}, #{authorityId})
+        </foreach>
+    </insert>
+
+    <select id="selectAuthorityListByRoleId" parameterType="Long" resultType="Long">
+        select authority_id from auth_role where role_id = #{roleId}
+    </select>
+
+</mapper>
+

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.InboundMapper">
+
+    <resultMap id="InboundResult" type="com.d0dd.wms.entity.Inbound">
+        <id property="id" column="id"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="customerId" column="supplier_id"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="inboundNo" column="inbound_no"/>
+        <result property="estimatedArrivalTime" column="estimated_arrival_time"/>
+        <result property="inboundStatus" column="inbound_status"/>
+        <result property="inboundType" column="inbound_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="customerName" column="customer_name"/>
+    </resultMap>
+
+    <sql id="selectInboundVo">
+        select id, supplier_id, warehouse_id, estimated_arrival_time, inbound_status, inbound_type, create_time, create_by, update_by, update_time
+        from inbound
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.Inbound" resultMap="InboundResult">
+        <include refid="selectInboundVo"/>
+        <where>
+            <if test="supplierId != null">
+                AND supplier_id = #{supplierId}
+            </if>
+            <if test="warehouseId != null">
+                AND warehouse_id = #{warehouseId}
+            </if>
+            <if test="inboundStatus != null and inboundStatus != ''">
+                AND inbound_status = #{inboundStatus}
+            </if>
+            <if test="inboundType != null and inboundType != ''">
+                AND inbound_type = #{inboundType}
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectListByDto" parameterType="com.d0dd.wms.dto.InboundQueryDto" resultMap="InboundResult">
+        select i.*,
+               concat('', i.id) as inbound_no,
+               w.warehouse_name,
+               c.name as customer_name
+        from inbound i
+        left join warehouse w on i.warehouse_id = w.id
+        left join customer c on i.supplier_id = c.id
+        <where>
+            <if test="inboundNo != null and inboundNo != ''">
+                AND concat('', i.id) like concat('%', #{inboundNo}, '%')
+            </if>
+            <if test="warehouseId != null">
+                AND i.warehouse_id = #{warehouseId}
+            </if>
+            <if test="customerId != null">
+                AND i.supplier_id = #{customerId}
+            </if>
+            <if test="supplierId != null">
+                AND i.supplier_id = #{supplierId}
+            </if>
+            <if test="inboundStatus != null and inboundStatus != ''">
+                AND i.inbound_status = #{inboundStatus}
+            </if>
+            <if test="inboundType != null and inboundType != ''">
+                AND i.inbound_type = #{inboundType}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                AND i.create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND i.create_time &lt;= #{endTime}
+            </if>
+        </where>
+        order by i.create_time desc
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="InboundResult">
+        <include refid="selectInboundVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="countByStatus" resultType="int">
+        select count(*) from inbound
+        where inbound_status in
+        <foreach item="status" collection="list" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.Inbound">
+        insert into inbound(
+            id,
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="warehouseId != null">warehouse_id,</if>
+            <if test="estimatedArrivalTime != null">estimated_arrival_time,</if>
+            <if test="inboundStatus != null">inbound_status,</if>
+            <if test="inboundType != null">inbound_type,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time
+        )values(
+            #{id},
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="warehouseId != null">#{warehouseId},</if>
+            <if test="estimatedArrivalTime != null">#{estimatedArrivalTime},</if>
+            <if test="inboundStatus != null">#{inboundStatus},</if>
+            <if test="inboundType != null">#{inboundType},</if>
+            <if test="createBy != null">#{createBy},</if>
+            NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.Inbound">
+        update inbound
+        <set>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="estimatedArrivalTime != null">estimated_arrival_time = #{estimatedArrivalTime},</if>
+            <if test="inboundStatus != null">inbound_status = #{inboundStatus},</if>
+            <if test="inboundType != null">inbound_type = #{inboundType},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from inbound where id = #{id}
+    </delete>
+</mapper>

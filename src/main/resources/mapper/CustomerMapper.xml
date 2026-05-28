@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.CustomerMapper">
+
+    <resultMap id="CustomerResult" type="com.d0dd.wms.entity.Customer">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="customerLevel" column="customer_level"/>
+        <result property="customerStatus" column="customer_status"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="address" column="address"/>
+        <result property="city" column="city"/>
+        <result property="province" column="province"/>
+        <result property="zipcode" column="zipcode"/>
+        <result property="businessIntro" column="business_intro"/>
+        <result property="isEnabled" column="is_enabled"/>
+    </resultMap>
+
+    <sql id="selectCustomerVo">
+        select id, code, name, customer_level, customer_status, phone, email, address, city, province, zipcode, business_intro, is_enabled
+        from customer
+    </sql>
+
+    <select id="selectById" parameterType="Long" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.Customer" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+        <where>
+            <if test="code != null and code != ''">
+                AND code like concat('%', #{code}, '%')
+            </if>
+            <if test="name != null and name != ''">
+                AND name like concat('%', #{name}, '%')
+            </if>
+            <if test="customerLevel != null and customerLevel != ''">
+                AND customer_level = #{customerLevel}
+            </if>
+            <if test="customerStatus != null and customerStatus != ''">
+                AND customer_status = #{customerStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectListByDto" parameterType="com.d0dd.wms.dto.CustomerQueryDto" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+        <where>
+            <if test="code != null and code != ''">
+                AND code like concat('%', #{code}, '%')
+            </if>
+            <if test="name != null and name != ''">
+                AND name like concat('%', #{name}, '%')
+            </if>
+            <if test="customerLevel != null and customerLevel != ''">
+                AND customer_level = #{customerLevel}
+            </if>
+            <if test="customerStatus != null and customerStatus != ''">
+                AND customer_status = #{customerStatus}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.Customer" useGeneratedKeys="true" keyProperty="id">
+        insert into customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null">code,</if>
+            <if test="name != null">name,</if>
+            <if test="customerLevel != null">customer_level,</if>
+            <if test="customerStatus != null">customer_status,</if>
+            <if test="phone != null">phone,</if>
+            <if test="email != null">email,</if>
+            <if test="address != null">address,</if>
+            <if test="city != null">city,</if>
+            <if test="province != null">province,</if>
+            <if test="zipcode != null">zipcode,</if>
+            <if test="businessIntro != null">business_intro,</if>
+            <if test="isEnabled != null">is_enabled,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null">#{code},</if>
+            <if test="name != null">#{name},</if>
+            <if test="customerLevel != null">#{customerLevel},</if>
+            <if test="customerStatus != null">#{customerStatus},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="email != null">#{email},</if>
+            <if test="address != null">#{address},</if>
+            <if test="city != null">#{city},</if>
+            <if test="province != null">#{province},</if>
+            <if test="zipcode != null">#{zipcode},</if>
+            <if test="businessIntro != null">#{businessIntro},</if>
+            <if test="isEnabled != null">#{isEnabled},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.Customer">
+        update customer
+        <set>
+            <if test="code != null">code = #{code},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="customerLevel != null">customer_level = #{customerLevel},</if>
+            <if test="customerStatus != null">customer_status = #{customerStatus},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="province != null">province = #{province},</if>
+            <if test="zipcode != null">zipcode = #{zipcode},</if>
+            <if test="businessIntro != null">business_intro = #{businessIntro},</if>
+            <if test="isEnabled != null">is_enabled = #{isEnabled},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from customer where id = #{id}
+    </delete>
+
+</mapper>

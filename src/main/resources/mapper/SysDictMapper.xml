@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.d0dd.wms.mapper.SysDictMapper">
+
+    <resultMap id="SysDictResult" type="com.d0dd.wms.entity.SysDict">
+        <id property="id" column="id"/>
+        <result property="dictType" column="dict_type"/>
+        <result property="dictCode" column="dict_code"/>
+        <result property="dictName" column="dict_name"/>
+        <result property="sort" column="sort"/>
+        <result property="isEnable" column="is_enable"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectSysDictVo">
+        select id, dict_type, dict_code, dict_name, sort, is_enable, remark
+        from sys_dict
+    </sql>
+
+    <select id="selectList" parameterType="com.d0dd.wms.entity.SysDict" resultMap="SysDictResult">
+        <include refid="selectSysDictVo"/>
+        <where>
+            <if test="dictType != null and dictType != ''">
+                AND dict_type = #{dictType}
+            </if>
+            <if test="dictCode != null and dictCode != ''">
+                AND dict_code = #{dictCode}
+            </if>
+            <if test="dictName != null and dictName != ''">
+                AND dict_name like concat('%', #{dictName}, '%')
+            </if>
+            <if test="isEnable != null">
+                AND is_enable = #{isEnable}
+            </if>
+        </where>
+        order by dict_type, sort
+    </select>
+
+    <select id="selectById" parameterType="Long" resultMap="SysDictResult">
+        <include refid="selectSysDictVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.d0dd.wms.entity.SysDict">
+        insert into sys_dict(
+            <if test="id != null">id,</if>
+            <if test="dictType != null">dict_type,</if>
+            <if test="dictCode != null">dict_code,</if>
+            <if test="dictName != null">dict_name,</if>
+            <if test="sort != null">sort,</if>
+            <if test="isEnable != null">is_enable,</if>
+            <if test="remark != null">remark,</if>
+        )values(
+            <if test="id != null">#{id},</if>
+            <if test="dictType != null">#{dictType},</if>
+            <if test="dictCode != null">#{dictCode},</if>
+            <if test="dictName != null">#{dictName},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="isEnable != null">#{isEnable},</if>
+            <if test="remark != null">#{remark},</if>
+        )
+    </insert>
+
+    <update id="update" parameterType="com.d0dd.wms.entity.SysDict">
+        update sys_dict
+        <set>
+            <if test="dictType != null">dict_type = #{dictType},</if>
+            <if test="dictCode != null">dict_code = #{dictCode},</if>
+            <if test="dictName != null">dict_name = #{dictName},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="isEnable != null">is_enable = #{isEnable},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from sys_dict where id = #{id}
+    </delete>
+</mapper>
