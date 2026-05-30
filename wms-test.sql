@@ -751,6 +751,8 @@ CREATE TABLE `warehouse_bin`  (
   `bin_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '库位名',
   `warehouse_id` bigint(20) NULL DEFAULT NULL COMMENT '仓库id',
   `zone_id` bigint(20) NULL DEFAULT NULL COMMENT '库区id',
+  `rack_id` bigint(20) NULL DEFAULT NULL COMMENT '货架id',
+  `column_num` int(11) NULL DEFAULT NULL COMMENT '列号',
   `on_zoom_level` int(11) NULL DEFAULT NULL COMMENT '所在库区的层数',
   `rack_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '货架类型',
   `bin_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '库位类型',

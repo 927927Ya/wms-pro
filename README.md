@@ -36,11 +36,40 @@
 
 ## 3. 环境准备
 
+### 3.1 方式一：Docker 一键启动（推荐）
+
+```bash
+# 构建并启动所有服务（MySQL + 后端 + 前端）
+docker compose up -d --build
+```
+
+服务启动后：
+
+| 服务 | 地址 |
+|------|------|
+| 前端页面 | http://localhost:4173 |
+| 后端 API | http://localhost:8080/api |
+| Swagger UI | http://localhost:8080/swagger-ui/index.html |
+
+停止服务：
+
+```bash
+docker compose down
+```
+
+停止并清理数据卷：
+
+```bash
+docker compose down -v
+```
+
+### 3.2 方式二：本地开发环境
+
 - JDK 17
 - Node.js（建议 20.19+ 或 22.12+，Vite 7 要求）
 - MySQL 8.x
 
-## 4. 数据库初始化
+#### 数据库初始化
 
 1. 创建数据库：
 
@@ -64,7 +93,7 @@ spring.datasource.username=root
 spring.datasource.password=123456
 ```
 
-## 5. 启动后端（API 服务）
+#### 启动后端（API 服务）
 
 后端默认端口为 `8080`，并且所有 `@RestController` 接口都会自动加上 `/api` 前缀。
 
@@ -90,9 +119,9 @@ Windows 可用：
 
 - 运行目录下会使用 `uploads/` 作为上传根目录，并以 `/uploads/**` 对外提供静态访问。
 
-## 7. 常用构建命令
+#### 常用构建命令
 
-### 7.1 后端打包
+##### 后端打包
 
 ```bash
 ./mvnw -DskipTests package
@@ -104,7 +133,7 @@ Windows 可用：
 java -jar target/WMS-0.0.1-SNAPSHOT.jar
 ```
 
-### 7.2 前端构建与预览
+##### 前端构建与预览
 
 构建产物在 `wms-ui/dist/` 目录。
 
@@ -118,13 +147,13 @@ npm run preview
 
 启动后访问：`http://localhost:4173/`
 
-### 7.3 后端测试
+##### 后端测试
 
 ```bash
 ./mvnw test
 ```
 
-## 8. 示例账号（来自 wms-test.sql）
+## 4. 示例账号（来自 wms-test.sql）
 
 示例数据内置了部分用户（登录接口支持用“昵称 / 邮箱 / 手机号”作为账号）：
 

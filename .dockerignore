@@ -1,0 +1,35 @@
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (前端在 wms-ui/ 下，但排除任何残留)
+node_modules/
+dist/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# 运行时数据
+data/
+uploads/
+logs/

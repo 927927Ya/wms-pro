@@ -1,0 +1,68 @@
+services:
+  # ==================== MySQL 8 ====================
+  mysql:
+    image: mysql:8.0
+    container_name: wms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: wms
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_general_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      # 初始化 SQL（首次启动时自动执行）
+      - ./wms-test.sql:/docker-entrypoint-initdb.d/01-init.sql
+      # 数据持久化
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  # ==================== 后端 Spring Boot ====================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wms-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # 覆盖默认 H2 配置，使用 MySQL
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/wms?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      # 关闭 H2 控制台
+      SPRING_H2_CONSOLE_ENABLED: "false"
+      # SQL 初始化交给 MySQL 容器
+      SPRING_SQL_INIT_MODE: never
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads
+
+  # ==================== 前端 Vite Preview ====================
+  frontend:
+    build:
+      context: ./wms-ui
+      dockerfile: Dockerfile
+    container_name: wms-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      # vite 代理目标指向后端容器
+      VITE_BACKEND_URL: http://backend:8080
+    ports:
+      - "4173:4173"
+
+volumes:
+  mysql_data:
+  uploads_data:
