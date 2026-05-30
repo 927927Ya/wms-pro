@@ -1,0 +1,1 @@
+import{w as t}from"./index-c4uV8Y57.js";function r(e){return t({url:"/warehouse/bin/list",method:"get",params:e})}function u(e){return t({url:`/warehouse/bin/${e}`,method:"get"})}function i(e){return t({url:"/warehouse/bin/batch",method:"post",data:e})}function o(e){return t({url:"/warehouse/bin",method:"put",data:e})}export{r as a,i as b,u as g,o as u};

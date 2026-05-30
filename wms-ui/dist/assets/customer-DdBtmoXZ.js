@@ -1,0 +1,1 @@
+import{w as e}from"./index-c4uV8Y57.js";function u(t){return e({url:"/customer/list",method:"post",data:t})}function o(t){return e({url:"/customer",method:"post",data:t})}function s(t){return e({url:"/customer",method:"put",data:t})}function m(t){return e({url:`/customer/${t}`,method:"delete"})}export{o as c,m as d,u as l,s as u};
