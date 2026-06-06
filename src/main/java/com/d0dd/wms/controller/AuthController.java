@@ -34,8 +34,18 @@ public class AuthController {
     }
 
     @GetMapping("/authority/list")
-    public Result<List<AuthAuthority>> listAuthorities() {
-        return Result.success(authAuthorityMapper.selectAll());
+    public Result<Map<String, Object>> listAuthorities() {
+
+        List<AuthAuthority> list = authAuthorityMapper.selectAll();
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
 }
 

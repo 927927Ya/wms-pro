@@ -8,10 +8,13 @@ import com.d0dd.wms.entity.InboundDetails;
 import com.d0dd.wms.entity.Outbound;
 import com.d0dd.wms.mapper.InboundDetailsMapper;
 import com.d0dd.wms.service.OutboundService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/outbound")
@@ -24,19 +27,36 @@ public class OutboundController {
     private InboundDetailsMapper inboundDetailsMapper;
 
     @GetMapping("/list")
-    public Result<List<Outbound>> list(OutboundOrderQueryDto queryDto) {
-        return Result.success(outboundService.list(queryDto));
+    public Result<Map<String, Object>> list(OutboundOrderQueryDto queryDto) {
+        List<Outbound> outbounds = outboundService.list(queryDto);
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", outbounds);
+        result.put("total", outbounds.size());
+        return Result.success(result);
     }
     
     @GetMapping("/search")
-    public Result<List<Outbound>> search(OutboundOrderQueryDto queryDto) {
-        return Result.success(outboundService.list(queryDto));
+    public Result<Map<String, Object>> search(OutboundOrderQueryDto queryDto) {
+
+        List<Outbound> list = outboundService.list(queryDto);
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
 
     @GetMapping("/{id}")
     public Result<Outbound> getById(@PathVariable Long id) {
         return Result.success(outboundService.getById(id));
     }
+
+    @RequiresPermissions("outbound:manage")
+
 
     @PostMapping
     public Result<String> save(@RequestBody OutboundDTO outboundDTO) {
@@ -45,9 +65,22 @@ public class OutboundController {
     }
 
     @GetMapping("/available-sku/list")
-    public Result<List<InboundDetails>> listAvailableSku(ProductQueryDto queryDto) {
-        return Result.success(inboundDetailsMapper.selectSkuSummaryForOutbound(queryDto));
+    public Result<Map<String, Object>> listAvailableSku(ProductQueryDto queryDto) {
+
+        List<InboundDetails> list = inboundDetailsMapper.selectSkuSummaryForOutbound(queryDto);
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
+
+    @RequiresPermissions("outbound:manage")
+
 
     @PutMapping
     public Result<String> update(@RequestBody Outbound outbound) {
@@ -55,11 +88,17 @@ public class OutboundController {
         return Result.success("Updated successfully");
     }
 
+    @RequiresPermissions("outbound:manage")
+
+
     @PutMapping("/dto")
     public Result<String> updateDto(@RequestBody OutboundDTO outboundDTO) {
         outboundService.updateOutbound(outboundDTO);
         return Result.success("Updated successfully");
     }
+
+    @RequiresPermissions("outbound:manage")
+
 
     @DeleteMapping("/{id}")
     public Result<String> remove(@PathVariable Long id) {

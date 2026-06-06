@@ -5,13 +5,17 @@ import com.d0dd.wms.common.Result;
 import com.d0dd.wms.dto.StorageQueryDto;
 import com.d0dd.wms.entity.InventoryBin;
 import com.d0dd.wms.service.InventoryBinService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/inventory/bin")
@@ -21,13 +25,33 @@ public class InventoryBinController {
     private InventoryBinService inventoryBinService;
 
     @GetMapping("/list")
-    public Result<List<InventoryBin>> list(InventoryBin inventoryBin) {
-        return Result.success(inventoryBinService.list(inventoryBin));
+    public Result<Map<String, Object>> list(InventoryBin inventoryBin) {
+
+        List<InventoryBin> list = inventoryBinService.list(inventoryBin);
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
     
     @GetMapping("/search")
-    public Result<List<InventoryBin>> search(StorageQueryDto queryDto) {
-        return Result.success(inventoryBinService.list(queryDto));
+    public Result<Map<String, Object>> search(StorageQueryDto queryDto) {
+
+        List<InventoryBin> list = inventoryBinService.list(queryDto);
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
     
     @GetMapping("/export")
@@ -42,8 +66,18 @@ public class InventoryBinController {
     }
     
     @GetMapping("/batch/{batchId}")
-    public Result<List<InventoryBin>> listByBatchId(@PathVariable Long batchId) {
-        return Result.success(inventoryBinService.getByBatchId(batchId));
+    public Result<Map<String, Object>> listByBatchId(@PathVariable Long batchId) {
+
+        List<InventoryBin> list = inventoryBinService.getByBatchId(batchId);
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
 
     @GetMapping("/{id}")
@@ -51,17 +85,26 @@ public class InventoryBinController {
         return Result.success(inventoryBinService.getById(id));
     }
 
+    @RequiresPermissions("inventory:manage")
+
+
     @PostMapping
     public Result<String> save(@RequestBody InventoryBin inventoryBin) {
         inventoryBinService.save(inventoryBin);
         return Result.success("Created successfully");
     }
 
+    @RequiresPermissions("inventory:manage")
+
+
     @PutMapping
     public Result<String> update(@RequestBody InventoryBin inventoryBin) {
         inventoryBinService.update(inventoryBin);
         return Result.success("Updated successfully");
     }
+
+    @RequiresPermissions("inventory:manage")
+
 
     @DeleteMapping("/{id}")
     public Result<String> remove(@PathVariable Long id) {

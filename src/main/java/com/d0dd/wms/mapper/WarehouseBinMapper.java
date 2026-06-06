@@ -9,6 +9,7 @@ public interface WarehouseBinMapper {
     WarehouseBin selectById(Long id);
     List<WarehouseBin> selectList(WarehouseBin warehouseBin);
     WarehouseBin selectByName(String binName);
+    List<WarehouseBin> selectByWarehouseId(Long warehouseId);
     int countAll();
     int insert(WarehouseBin warehouseBin);
     int batchInsert(List<WarehouseBin> list);

@@ -217,10 +217,22 @@ public class InboundReceivingTaskServiceImpl implements InboundReceivingTaskServ
             throw new RuntimeException("Task already completed");
         }
 
-        WarehouseBin bin = warehouseBinMapper.selectById(binId);
-        if (bin == null) {
-            throw new RuntimeException("Bin not found");
+        WarehouseBin bin = null;
+        if (binId != null && binId > 0) {
+            bin = warehouseBinMapper.selectById(binId);
         }
+        if (bin == null) {
+            InboundDetails details = inboundDetailsMapper.selectById(task.getInboundDetailsId());
+            Inbound inbound = inboundMapper.selectById(details.getInboundId());
+            List<WarehouseBin> bins = warehouseBinMapper.selectByWarehouseId(inbound.getWarehouseId());
+            if (bins != null && !bins.isEmpty()) {
+                bin = bins.get(0);
+            }
+        }
+        if (bin == null) {
+            throw new RuntimeException("No available bin found in warehouse");
+        }
+        binId = bin.getId();
         
         // Update task
         task.setTaskStatus(1);

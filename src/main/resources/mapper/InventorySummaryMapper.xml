@@ -25,10 +25,13 @@
     </sql>
 
     <select id="selectList" parameterType="com.d0dd.wms.entity.InventorySummary" resultMap="InventorySummaryResult">
-        <include refid="selectInventorySummaryVo"/>
+        select i.id, i.sku_id, i.total_qty, i.available_qty, i.frozen_qty, i.update_time,
+               s.sku_code, s.prod_name_chn as prod_name, s.prod_name_eng, s.prod_name_chn
+        from inventory_summary i
+        left join prod_sku s on i.sku_id = s.id
         <where>
             <if test="skuId != null">
-                AND sku_id = #{skuId}
+                AND i.sku_id = #{skuId}
             </if>
         </where>
     </select>

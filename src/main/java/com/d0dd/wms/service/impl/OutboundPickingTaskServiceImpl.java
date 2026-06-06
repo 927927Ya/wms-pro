@@ -222,24 +222,28 @@ public class OutboundPickingTaskServiceImpl implements OutboundPickingTaskServic
             throw new RuntimeException("No available inventory for this SKU");
         }
 
-        InventoryBin selectedInventoryBin = inventoryBinMapper.selectById(binId);
+        InventoryBin selectedInventoryBin = null;
         String selectedWarehouseBinName = null;
 
-        if (selectedInventoryBin == null) {
-            WarehouseBin selectedBin = warehouseBinMapper.selectById(binId);
-            if (selectedBin == null) {
-                throw new RuntimeException("Bin not found");
+        if (binId != null && binId > 0) {
+            selectedInventoryBin = inventoryBinMapper.selectById(binId);
+            if (selectedInventoryBin == null) {
+                WarehouseBin selectedBin = warehouseBinMapper.selectById(binId);
+                if (selectedBin != null) {
+                    selectedWarehouseBinName = selectedBin.getBinName();
+                    String selectedWarehouseBinIdStr = String.valueOf(selectedBin.getId());
+                    selectedInventoryBin = candidates.stream()
+                            .filter(b -> Objects.equals(b.getBinId(), selectedWarehouseBinIdStr)
+                                    || Objects.equals(b.getBinId(), selectedBin.getBinName()))
+                            .findFirst()
+                            .orElse(null);
+                }
             }
-            selectedWarehouseBinName = selectedBin.getBinName();
-            String selectedWarehouseBinIdStr = String.valueOf(selectedBin.getId());
-            selectedInventoryBin = candidates.stream()
-                    .filter(b -> Objects.equals(b.getBinId(), selectedWarehouseBinIdStr) || Objects.equals(b.getBinId(), selectedBin.getBinName()))
-                    .findFirst()
-                    .orElse(null);
         }
 
+        // Fallback: auto-pick first available inventory bin
         if (selectedInventoryBin == null) {
-            throw new RuntimeException("No available inventory in selected bin");
+            selectedInventoryBin = candidates.get(0);
         }
 
         InventoryBin finalSelectedInventoryBin = selectedInventoryBin;

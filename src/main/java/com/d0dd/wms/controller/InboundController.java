@@ -5,10 +5,13 @@ import com.d0dd.wms.dto.InboundDTO;
 import com.d0dd.wms.dto.InboundQueryDto;
 import com.d0dd.wms.entity.Inbound;
 import com.d0dd.wms.service.InboundService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/inbound")
@@ -18,13 +21,27 @@ public class InboundController {
     private InboundService inboundService;
 
     @GetMapping("/list")
-    public Result<List<Inbound>> list(Inbound inbound) {
-        return Result.success(inboundService.list(inbound));
+    public Result<Map<String, Object>> list(Inbound inbound) {
+        List<Inbound> list = inboundService.list(inbound);
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", list);
+        result.put("total", list.size());
+        return Result.success(result);
     }
     
     @GetMapping("/search")
-    public Result<List<Inbound>> search(InboundQueryDto queryDto) {
-        return Result.success(inboundService.list(queryDto));
+    public Result<Map<String, Object>> search(InboundQueryDto queryDto) {
+
+        List<Inbound> list = inboundService.list(queryDto);
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
 
     @GetMapping("/{id}")
@@ -32,17 +49,26 @@ public class InboundController {
         return Result.success(inboundService.getById(id));
     }
 
+    @RequiresPermissions("inbound:manage")
+
+
     @PostMapping
     public Result<String> save(@RequestBody InboundDTO inboundDTO) {
         inboundService.createInbound(inboundDTO);
         return Result.success("Created successfully");
     }
 
+    @RequiresPermissions("inbound:manage")
+
+
     @PutMapping
     public Result<String> update(@RequestBody Inbound inbound) {
         inboundService.update(inbound);
         return Result.success("Updated successfully");
     }
+
+    @RequiresPermissions("inbound:manage")
+
 
     @DeleteMapping("/{id}")
     public Result<String> remove(@PathVariable Long id) {

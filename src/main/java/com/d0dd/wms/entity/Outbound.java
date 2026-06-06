@@ -17,4 +17,8 @@ public class Outbound implements Serializable {
     private Date createTime;
     private Date outboundDate;
     private String remark;
+
+    // Transient fields from JOIN
+    private String warehouseName;
+    private String customerName;
 }

@@ -69,6 +69,11 @@
         limit 1
     </select>
 
+    <select id="selectByWarehouseId" parameterType="Long" resultMap="WarehouseBinResult">
+        <include refid="selectWarehouseBinVo"/>
+        where warehouse_id = #{warehouseId} and is_enabled = 1
+    </select>
+
     <select id="countAll" resultType="int">
         select count(*) from warehouse_bin where is_enabled = 1
     </select>

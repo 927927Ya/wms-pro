@@ -4,9 +4,14 @@ import com.d0dd.wms.common.Result;
 import com.d0dd.wms.dto.ProductQueryDto;
 import com.d0dd.wms.entity.ProdSku;
 import com.d0dd.wms.service.ProdSkuService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,8 +29,12 @@ public class ProdSkuController {
     private ProdSkuService prodSkuService;
 
     @GetMapping("/list")
-    public Result<List<ProdSku>> list(ProductQueryDto queryDto) {
-        return Result.success(prodSkuService.list(queryDto));
+    public Result<Map<String, Object>> list(ProductQueryDto queryDto) {
+        List<ProdSku> list = prodSkuService.list(queryDto);
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", list);
+        result.put("total", list.size());
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
@@ -38,11 +47,17 @@ public class ProdSkuController {
         return Result.success(prodSkuService.generateSkuCode());
     }
 
+    @RequiresPermissions("prod:manage")
+
+
     @PostMapping
     public Result<String> save(@RequestBody ProdSku prodSku) {
         prodSkuService.save(prodSku);
         return Result.success("Created successfully");
     }
+
+    @RequiresPermissions("prod:manage")
+
 
     @PutMapping
     public Result<String> update(@RequestBody ProdSku prodSku) {
@@ -50,11 +65,17 @@ public class ProdSkuController {
         return Result.success("Updated successfully");
     }
 
+    @RequiresPermissions("prod:manage")
+
+
     @DeleteMapping("/{id}")
     public Result<String> remove(@PathVariable Long id) {
         prodSkuService.removeById(id);
         return Result.success("Deleted successfully");
     }
+
+    @RequiresPermissions("prod:manage")
+
 
     @PostMapping("/upload")
     public Result<String> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {

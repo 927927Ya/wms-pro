@@ -18,28 +18,30 @@
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
         <result property="warehouseName" column="warehouse_name"/>
+        <result property="supplierName" column="supplier_name"/>
         <result property="customerName" column="customer_name"/>
     </resultMap>
 
-    <sql id="selectInboundVo">
-        select id, supplier_id, warehouse_id, estimated_arrival_time, inbound_status, inbound_type, create_time, create_by, update_by, update_time
-        from inbound
-    </sql>
-
     <select id="selectList" parameterType="com.d0dd.wms.entity.Inbound" resultMap="InboundResult">
-        <include refid="selectInboundVo"/>
+        select i.*,
+               concat('', i.id) as inbound_no,
+               w.warehouse_name,
+               s.name as supplier_name
+        from inbound i
+        left join warehouse w on i.warehouse_id = w.id
+        left join customer s on i.supplier_id = s.id
         <where>
             <if test="supplierId != null">
-                AND supplier_id = #{supplierId}
+                AND i.supplier_id = #{supplierId}
             </if>
             <if test="warehouseId != null">
-                AND warehouse_id = #{warehouseId}
+                AND i.warehouse_id = #{warehouseId}
             </if>
             <if test="inboundStatus != null and inboundStatus != ''">
-                AND inbound_status = #{inboundStatus}
+                AND i.inbound_status = #{inboundStatus}
             </if>
             <if test="inboundType != null and inboundType != ''">
-                AND inbound_type = #{inboundType}
+                AND i.inbound_type = #{inboundType}
             </if>
         </where>
     </select>
@@ -48,7 +50,7 @@
         select i.*,
                concat('', i.id) as inbound_no,
                w.warehouse_name,
-               c.name as customer_name
+               c.name as supplier_name
         from inbound i
         left join warehouse w on i.warehouse_id = w.id
         left join customer c on i.supplier_id = c.id
@@ -82,8 +84,14 @@
     </select>
 
     <select id="selectById" parameterType="Long" resultMap="InboundResult">
-        <include refid="selectInboundVo"/>
-        where id = #{id}
+        select i.*,
+               concat('', i.id) as inbound_no,
+               w.warehouse_name,
+               s.name as supplier_name
+        from inbound i
+        left join warehouse w on i.warehouse_id = w.id
+        left join customer s on i.supplier_id = s.id
+        where i.id = #{id}
     </select>
 
     <select id="countByStatus" resultType="int">

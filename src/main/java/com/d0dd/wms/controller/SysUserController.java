@@ -5,10 +5,14 @@ import com.d0dd.wms.entity.SysUser;
 import com.d0dd.wms.service.SysUserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/sys/user")
@@ -18,8 +22,18 @@ public class SysUserController {
     private SysUserService sysUserService;
 
     @PostMapping("/list")
-    public Result<List<SysUser>> list(@RequestBody com.d0dd.wms.dto.SysUserQueryDto queryDto) {
-        return Result.success(sysUserService.list(queryDto));
+    public Result<Map<String, Object>> list(@RequestBody com.d0dd.wms.dto.SysUserQueryDto queryDto) {
+
+        List<SysUser> list = sysUserService.list(queryDto);
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("records", list);
+
+        result.put("total", list.size());
+
+        return Result.success(result);
+
     }
 
     @GetMapping("/{id}")
@@ -27,11 +41,17 @@ public class SysUserController {
         return Result.success(sysUserService.getById(id));
     }
 
+    @RequiresPermissions("sys:user:manage")
+
+
     @PostMapping
     public Result<String> save(@RequestBody SysUser sysUser) {
         sysUserService.save(sysUser);
         return Result.success("Created successfully");
     }
+
+    @RequiresPermissions("sys:user:manage")
+
 
     @PutMapping
     public Result<String> update(@RequestBody SysUser sysUser) {
@@ -44,6 +64,9 @@ public class SysUserController {
         Long userId = currentUserId();
         return Result.success(sysUserService.getById(userId));
     }
+
+    @RequiresPermissions("sys:user:manage")
+
 
     @PutMapping("/profile")
     public Result<String> updateProfile(@RequestBody SysUser sysUser) {
@@ -76,6 +99,9 @@ public class SysUserController {
         }
     }
 
+    @RequiresPermissions("sys:user:manage")
+
+
     @PutMapping("/password")
     public Result<String> updatePassword(@RequestBody PasswordBody body) {
         if (body == null || body.getOldPassword() == null || body.getOldPassword().trim().isEmpty()) {
@@ -95,6 +121,9 @@ public class SysUserController {
         SecurityUtils.getSubject().logout();
         return Result.success("密码修改成功");
     }
+
+    @RequiresPermissions("sys:user:manage")
+
 
     @DeleteMapping("/{id}")
     public Result<String> remove(@PathVariable Long id) {

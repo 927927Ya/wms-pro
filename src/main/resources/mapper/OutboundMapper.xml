@@ -14,42 +14,44 @@
         <result property="createTime" column="create_time"/>
         <result property="outboundDate" column="outbound_date"/>
         <result property="remark" column="remark"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="customerName" column="customer_name"/>
     </resultMap>
 
-    <sql id="selectOutboundVo">
-        select id, warehouse_id, outbound_type, outbound_status, customer_id, create_by, create_time, outbound_date, remark
-        from outbound
-    </sql>
-
     <select id="selectList" parameterType="com.d0dd.wms.dto.OutboundOrderQueryDto" resultMap="OutboundResult">
-        <include refid="selectOutboundVo"/>
+        select o.*,
+               w.warehouse_name,
+               c.name as customer_name
+        from outbound o
+        left join warehouse w on o.warehouse_id = w.id
+        left join customer c on o.customer_id = c.id
         <where>
             <if test="id != null">
-                AND id = #{id}
+                AND o.id = #{id}
             </if>
             <if test="warehouseId != null">
-                AND warehouse_id = #{warehouseId}
+                AND o.warehouse_id = #{warehouseId}
             </if>
             <if test="outboundType != null and outboundType != ''">
-                AND outbound_type = #{outboundType}
+                AND o.outbound_type = #{outboundType}
             </if>
             <if test="outboundStatus != null and outboundStatus != ''">
-                AND outbound_status = #{outboundStatus}
+                AND o.outbound_status = #{outboundStatus}
             </if>
             <if test="customerId != null">
-                AND customer_id = #{customerId}
+                AND o.customer_id = #{customerId}
             </if>
             <if test="outboundDate != null">
-                AND outbound_date = #{outboundDate}
+                AND o.outbound_date = #{outboundDate}
             </if>
             <if test="startTime != null and startTime != ''">
-                AND create_time &gt;= #{startTime}
+                AND o.create_time &gt;= #{startTime}
             </if>
             <if test="endTime != null and endTime != ''">
-                AND create_time &lt;= #{endTime}
+                AND o.create_time &lt;= #{endTime}
             </if>
         </where>
-        order by create_time desc
+        order by o.create_time desc
     </select>
 
     <select id="countByStatus" resultType="int">
@@ -61,8 +63,13 @@
     </select>
 
     <select id="selectById" parameterType="Long" resultMap="OutboundResult">
-        <include refid="selectOutboundVo"/>
-        where id = #{id}
+        select o.*,
+               w.warehouse_name,
+               c.name as customer_name
+        from outbound o
+        left join warehouse w on o.warehouse_id = w.id
+        left join customer c on o.customer_id = c.id
+        where o.id = #{id}
     </select>
 
     <insert id="insert" parameterType="com.d0dd.wms.entity.Outbound" useGeneratedKeys="true" keyProperty="id">
