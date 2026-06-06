@@ -33,3 +33,15 @@ build/
 
 ### Office Temp Files ###
 ~$*
+
+### Frontend build artifacts ###
+wms-ui/dist/
+wms-ui/node_modules/
+wms-ui/package-lock.json
+
+### Temp & local files ###
+cookies*.txt
+backend.log
+*.ps1
+*.py
+add_perms.*

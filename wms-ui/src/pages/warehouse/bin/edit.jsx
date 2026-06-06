@@ -1,0 +1,1 @@
+export { BinEditPage } from './BinForm';

@@ -10,7 +10,7 @@ services:
       MYSQL_CHARSET: utf8mb4
       MYSQL_COLLATION: utf8mb4_general_ci
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       # 初始化 SQL（首次启动时自动执行）
       - ./wms-test.sql:/docker-entrypoint-initdb.d/01-init.sql

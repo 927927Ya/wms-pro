@@ -1,0 +1,28 @@
+import request from './request';
+
+export const getSkuList = (params) => request({ url: '/prod/sku/list', method: 'get', params });
+export const getSkuById = (id) => request({ url: `/prod/sku/${id}`, method: 'get' });
+export const createSku = (data) => request({ url: '/prod/sku', method: 'post', data });
+export const updateSku = (data) => request({ url: '/prod/sku', method: 'put', data });
+export const deleteSku = (id) => request({ url: `/prod/sku/${id}`, method: 'delete' });
+export const uploadSkuImage = (data) => request({ url: '/prod/sku/upload', method: 'post', data, headers: { 'Content-Type': 'multipart/form-data' } });
+export const getCategoryList = (params) => request({ url: '/prod/category/list', method: 'get', params });
+export const getCategoryById = (id) => request({ url: `/prod/category/${id}`, method: 'get' });
+export const createCategory = (data) => request({ url: '/prod/category', method: 'post', data });
+export const updateCategory = (data) => request({ url: '/prod/category', method: 'put', data });
+export const deleteCategory = (id) => request({ url: `/prod/category/${id}`, method: 'delete' });
+export const getTagList = (params) => request({ url: '/prod/tag/list', method: 'get', params });
+export const getTagById = (id) => request({ url: `/prod/tag/${id}`, method: 'get' });
+export const createTag = (data) => request({ url: '/prod/tag', method: 'post', data });
+export const updateTag = (data) => request({ url: '/prod/tag', method: 'put', data });
+export const deleteTag = (id) => request({ url: `/prod/tag/${id}`, method: 'delete' });
+export const getUnitList = (params) => request({ url: '/prod/unit/list', method: 'get', params });
+export const getUnitById = (id) => request({ url: `/prod/unit/${id}`, method: 'get' });
+export const createUnit = (data) => request({ url: '/prod/unit', method: 'post', data });
+export const updateUnit = (data) => request({ url: '/prod/unit', method: 'put', data });
+export const deleteUnit = (id) => request({ url: `/prod/unit/${id}`, method: 'delete' });
+export const getStorageTypeList = (params) => request({ url: '/prod/storageType/list', method: 'get', params });
+export const getStorageTypeById = (id) => request({ url: `/prod/storageType/${id}`, method: 'get' });
+export const createStorageType = (data) => request({ url: '/prod/storageType', method: 'post', data });
+export const updateStorageType = (data) => request({ url: '/prod/storageType', method: 'put', data });
+export const deleteStorageType = (id) => request({ url: `/prod/storageType/${id}`, method: 'delete' });

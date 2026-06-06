@@ -1,0 +1,1 @@
+export { BinCreatePage } from './BinForm';
